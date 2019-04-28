@@ -1,14 +1,25 @@
+// include dotenv package for reading and setting environment variables
 require("dotenv").config();
 
+// Import the inquirer npm package
 var inquirer = require("inquirer");
+// Import the axios npm package
 var axios = require("axios");
+// Import the node-spotify-api npm package
 var Spotify = require('node-spotify-api');
+// Import the api keys
 var keys = require("./keys.js");
+// Import the moment npm package
 var moment = require("moment");
-var spotify = new Spotify(keys.spotify);
+// Import the FS package for read/write
 var fs = require("fs");
 
+// Initialize spotify Api using the key
+var spotify = new Spotify(keys.spotify);
+
+// liribot object that contains liribot functions
 var liribot = {
+    // Function to search and get movie
     getMovie: function (movieName) {
         if (movieName == undefined) {
             movieName = "Mr.Nobody";
@@ -34,10 +45,12 @@ var liribot = {
         );
     },
 
+    // Function to help getting artist name
     getArtist: function (artist) {
         return artist.name;
     },
 
+    // Function to search and get song
     getSpotify: function (songName) {
         if (songName === undefined) {
             songName = "The Sign";
@@ -48,7 +61,6 @@ var liribot = {
             }
             var songs = data.tracks.items;
             var data = [];
-
             for (var i in songs) {
                 data.push({
                     "artist(s) ": songs[i].artists.map(liribot.getArtist),
@@ -62,6 +74,7 @@ var liribot = {
         });
     },
 
+     // Function to search and get song
     getConcert: function (artistName) {
         if (artistName == undefined) {
             console.log("please enter artist name!");
@@ -95,6 +108,7 @@ var liribot = {
         );
     },
 
+    // Function to read from random.txt and run liribot using info given by that text
     doWhatItSays: function () {
         fs.readFile("random.txt", "utf8", function (error, data) {
             if (error) {
@@ -109,6 +123,7 @@ var liribot = {
         });
     },
 
+    // Function to log/append data searched into text file
     log: function (data) {
         fs.appendFile("log.txt", JSON.stringify(data) + "\n", function (err) {
             if (err) {
@@ -119,6 +134,7 @@ var liribot = {
         });
     },
 
+    // Function to actually run liribot functions above
     run: function (command, info) {
         switch (command) {
             case ("movie-this"):
@@ -136,7 +152,9 @@ var liribot = {
     }
 }
 
+// user object that contains prompt functions
 var user = {
+    // function to get command from the user and call to get Info
     userPrompt: function () {
         inquirer
             .prompt([
@@ -160,6 +178,7 @@ var user = {
             });
     },
 
+    // Function to get info and actually call liribo.run function to run
     getInfo: function (command) {
         inquirer
             .prompt([{
@@ -174,6 +193,7 @@ var user = {
     }
 }
 
+// Call userPrompt function from user object.. this starts the app!
 user.userPrompt();
 
 
