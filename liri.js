@@ -8,25 +8,7 @@ var moment = require("moment");
 var spotify = new Spotify(keys.spotify);
 var fs = require("fs");
 
-var userCommand = process.argv[2];
-var dataInfo = process.argv.slice(3).join(" ");
-
 var liribot = {
-    prompt: function () {
-        inquirer
-            .prompt([
-                {
-                    type: "list",
-                    name: "command",
-                    message: "How can I help you?",
-                    choices: ["movie-this", "spotify-this-song", "concert-this", "do-what-it-says", "quit"]
-                }, {
-                    type: "input",
-                    name: "name",
-                    message: "Who are you???"
-                }
-            ]);
-    },
     getMovie: function (movieName) {
         if (movieName == undefined) {
             movieName = "Mr.Nobody";
@@ -148,15 +130,50 @@ var liribot = {
             case ("concert-this"):
                 liribot.getConcert(info);
                 break;
-            case ("do-what-it-says"):
-                liribot.doWhatItSays();
-                break;
             default:
                 console.log("Sorry! I didn't get that");
         }
     }
 }
 
-liribot.run(userCommand, dataInfo);
+var user = {
+    userPrompt: function () {
+        inquirer
+            .prompt([
+                {
+                    type: "list",
+                    name: "command",
+                    message: "How can I help you?",
+                    choices: ["movie-this", "spotify-this-song", "concert-this", "do-what-it-says", "quit"]
+                }
+            ]).then(function (inquirerResponse) {
+                var command = inquirerResponse.command;
+                if (command == "quit") {
+
+                } else if (command == "do-what-it-says") {
+                    liribot.doWhatItSays();
+                    setTimeout(userPrompt, 5000);
+                } else {
+                    user.getInfo(command);
+                }
+
+            });
+    },
+
+    getInfo: function (command) {
+        inquirer
+            .prompt([{
+                type: "input",
+                name: "info",
+                message: "Please enter movie/song/artist name"
+            }]).then(function (inquirerResponse) {
+                var dataInfo = inquirerResponse.info;
+                liribot.run(command, dataInfo);
+                setTimeout(user.userPrompt, 3000);
+            });
+    }
+}
+
+user.userPrompt();
 
 
