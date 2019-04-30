@@ -28,6 +28,11 @@ var liribot = {
         axios.get(queryUrl).then(
             function (response) {
                 var movieData = response.data;
+                if (!movieData.length) {
+                    console.log("No results found for " + movieName);
+                    return;
+                }
+
                 var data = {
                     "Title ": movieData.Title,
                     "Year ": movieData.Year,
@@ -56,10 +61,11 @@ var liribot = {
             songName = "The Sign";
         }
         spotify.search({ type: 'track', query: songName }, function (err, data) {
-            if (err) {
-                return console.log('Error occurred: ' + err);
-            }
             var songs = data.tracks.items;
+            if (!songs.length) {
+                console.log("No results found for " + songName);
+                return;
+            }
             var data = [];
             for (var i in songs) {
                 data.push({
@@ -154,6 +160,7 @@ var liribot = {
     }
 }
 
+var options;
 // user object that contains prompt functions
 var user = {
     // function to get command from the user and call to get Info
@@ -168,15 +175,26 @@ var user = {
                 }
             ]).then(function (inquirerResponse) {
                 var command = inquirerResponse.command;
-                if (command == "quit") {
-
-                } else if (command == "do-what-it-says") {
-                    liribot.doWhatItSays();
-                    setTimeout(user.userPrompt, 5000);
-                } else {
-                    user.getInfo(command);
+                switch (command) {
+                    case ("movie-this"):
+                        options = "movie";
+                        user.getInfo(command);
+                        break;
+                    case ("spotify-this-song"):
+                        options = "song";
+                        user.getInfo(command);
+                        break;
+                    case ("concert-this"):
+                        options = "artist";
+                        user.getInfo(command);
+                        break;
+                    case ("do-what-it-says"):
+                        liribot.doWhatItSays();
+                        setTimeout(user.userPrompt, 5000);
+                        break;
+                    case ("quit"):
+                        break;
                 }
-
             });
     },
 
@@ -186,7 +204,7 @@ var user = {
             .prompt([{
                 type: "input",
                 name: "info",
-                message: "Please enter movie/song/artist name"
+                message: "Please enter " + options + " name!"
             }]).then(function (inquirerResponse) {
                 var dataInfo = inquirerResponse.info;
                 liribot.run(command, dataInfo);
