@@ -21,7 +21,7 @@ var spotify = new Spotify(keys.spotify);
 var liribot = {
     // Function to search and get movie
     getMovie: function (movieName) {
-        if (movieName == undefined) {
+        if (movieName == undefined || movieName == "") {
             movieName = "Mr.Nobody";
         }
         var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
@@ -52,7 +52,7 @@ var liribot = {
 
     // Function to search and get song
     getSpotify: function (songName) {
-        if (songName === undefined) {
+        if (songName == undefined || songName == "") {
             songName = "The Sign";
         }
         spotify.search({ type: 'track', query: songName }, function (err, data) {
@@ -74,38 +74,40 @@ var liribot = {
         });
     },
 
-     // Function to search and get song
+    // Function to search and get song
     getConcert: function (artistName) {
-        if (artistName == undefined) {
+        if (artistName == undefined || artistName == "") {
             console.log("please enter artist name!");
-        }
-        var queryUrl = "https://rest.bandsintown.com/artists/" + artistName + "/events?app_id=codingbootcamp";
-        axios.get(queryUrl).then(
-            function (response) {
-                var concertData = response.data;
-                if (!concertData.length) {
-                    console.log("No results found for " + artistName);
-                    return;
-                }
+            return;
+        } else {
+            var queryUrl = "https://rest.bandsintown.com/artists/" + artistName + "/events?app_id=codingbootcamp";
+            axios.get(queryUrl).then(
+                function (response) {
+                    var concertData = response.data;
+                    if (!concertData.length) {
+                        console.log("No results found for " + artistName);
+                        return;
+                    }
 
-                var data = [];
-                data.push("Upcoming concerts for " + artistName + ":");
-                for (var i in concertData) {
-                    var concert = concertData[i];
-                    data.push(
-                        concert.venue.city +
-                        "," +
-                        (concert.venue.region || concert.venue.country) +
-                        " at " +
-                        concert.venue.name +
-                        " " +
-                        moment(concert.datetime).format("MM/DD/YYYY")
-                    );
+                    var data = [];
+                    data.push("Upcoming concerts for " + artistName + ":");
+                    for (var i in concertData) {
+                        var concert = concertData[i];
+                        data.push(
+                            concert.venue.city +
+                            "," +
+                            (concert.venue.region || concert.venue.country) +
+                            " at " +
+                            concert.venue.name +
+                            " " +
+                            moment(concert.datetime).format("MM/DD/YYYY")
+                        );
+                    }
+                    console.log(data);
+                    liribot.log(data);
                 }
-                console.log(data);
-                liribot.log(data);
-            }
-        );
+            );
+        }
     },
 
     // Function to read from random.txt and run liribot using info given by that text
@@ -170,7 +172,7 @@ var user = {
 
                 } else if (command == "do-what-it-says") {
                     liribot.doWhatItSays();
-                    setTimeout(userPrompt, 5000);
+                    setTimeout(user.userPrompt, 5000);
                 } else {
                     user.getInfo(command);
                 }
