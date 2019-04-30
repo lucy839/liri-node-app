@@ -21,17 +21,13 @@ var spotify = new Spotify(keys.spotify);
 var liribot = {
     // Function to search and get movie
     getMovie: function (movieName) {
-        if (movieName == undefined || movieName == "") {
+        if (movieName == "") {
             movieName = "Mr.Nobody";
         }
         var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
         axios.get(queryUrl).then(
             function (response) {
                 var movieData = response.data;
-                if (!movieData.length) {
-                    console.log("No results found for " + movieName);
-                    return;
-                }
 
                 var data = {
                     "Title ": movieData.Title,
@@ -47,7 +43,9 @@ var liribot = {
                 console.log(data);
                 liribot.log(data);
             }
-        );
+        ).catch(function (error) {
+            console.log('Error. No result found for '+ movieName);
+        });
     },
 
     // Function to help getting artist name
@@ -57,15 +55,15 @@ var liribot = {
 
     // Function to search and get song
     getSpotify: function (songName) {
-        if (songName == undefined || songName == "") {
+        if (songName == "") {
             songName = "The Sign";
         }
         spotify.search({ type: 'track', query: songName }, function (err, data) {
-            var songs = data.tracks.items;
-            if (!songs.length) {
-                console.log("No results found for " + songName);
-                return;
+            if (err) {
+                return console.log('Error : ' + err);
             }
+
+            var songs = data.tracks.items;
             var data = [];
             for (var i in songs) {
                 data.push({
@@ -75,14 +73,18 @@ var liribot = {
                     "album ": songs[i].album.name,
                 });
             }
-            console.log(data);
-            liribot.log(data);
+            if (data.length) {
+                console.log(data);
+                liribot.log(data);
+            } else {
+                console.log('Error. No result found for ' + songName);
+            }
         });
     },
 
     // Function to search and get song
     getConcert: function (artistName) {
-        if (artistName == undefined || artistName == "") {
+        if (artistName == "") {
             console.log("please enter artist name!");
             return;
         } else {
@@ -91,7 +93,7 @@ var liribot = {
                 function (response) {
                     var concertData = response.data;
                     if (!concertData.length) {
-                        console.log("No results found for " + artistName);
+                        console.log("No concert data given yet for " + artistName);
                         return;
                     }
 
@@ -112,7 +114,9 @@ var liribot = {
                     console.log(data);
                     liribot.log(data);
                 }
-            );
+            ).catch(function (error) {
+                console.log("Error. No results found for " + artistName);
+            });
         }
     },
 
@@ -122,6 +126,7 @@ var liribot = {
             if (error) {
                 return console.log(error);
             }
+            
             var dataArr = data.split(",");
             if (dataArr.length == 2) {
                 liribot.run(dataArr[0], dataArr[1]);
