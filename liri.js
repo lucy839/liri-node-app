@@ -176,7 +176,7 @@ var user = {
                     type: "list",
                     name: "command",
                     message: "How can I help you?",
-                    choices: ["movie-this", "spotify-this-song", "concert-this", "do-what-it-says", "quit"]
+                    choices: ["movie-this", "spotify-this-song", "concert-this", "do-what-it-says"]
                 }
             ]).then(function (inquirerResponse) {
                 var command = inquirerResponse.command;
@@ -195,9 +195,7 @@ var user = {
                         break;
                     case ("do-what-it-says"):
                         liribot.doWhatItSays();
-                        setTimeout(user.userPrompt, 5000);
-                        break;
-                    case ("quit"):
+                        setTimeout(user.end, 5000);
                         break;
                 }
             });
@@ -213,8 +211,25 @@ var user = {
             }]).then(function (inquirerResponse) {
                 var dataInfo = inquirerResponse.info;
                 liribot.run(command, dataInfo);
-                setTimeout(user.userPrompt, 3000);
+                setTimeout(user.end, 3000);
             });
+    },
+
+    // Function to ask use if they want to command again
+    end: function(){
+        inquirer
+        .prompt({
+          name: "again",
+          type: "confirm",
+          message: "Would you like to command again??"
+        })
+        .then(function(answer) {
+          if (answer.again === true) {
+            user.userPrompt();
+          } else {
+            console.log("Come back again soon!");
+          }
+        });
     }
 }
 
